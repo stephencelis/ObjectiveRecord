@@ -203,8 +203,16 @@
         else if (attributeType == NSFloatAttributeType)
             value = [NSNumber numberWithDouble:[value doubleValue]];
 
-        else if (attributeType == NSDateAttributeType)
-            value = [self.defaultFormatter dateFromString:value];
+        else if (attributeType == NSDateAttributeType) {
+            static NSDateFormatter *dateFormatter;
+            static dispatch_once_t singletonToken;
+            dispatch_once(&singletonToken, ^{
+                dateFormatter = [NSDateFormatter new];
+                [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss z"];
+            });
+
+            value = [dateFormatter dateFromString:value];
+        }
     }
 
     [self setPrimitiveValue:value forKey:key];
@@ -214,19 +222,6 @@
     return (attributeType == NSInteger16AttributeType) ||
            (attributeType == NSInteger32AttributeType) ||
            (attributeType == NSInteger64AttributeType);
-}
-
-#pragma mark - Date Formatting
-
-- (NSDateFormatter *)defaultFormatter {
-    static NSDateFormatter *sharedFormatter;
-    static dispatch_once_t singletonToken;
-    dispatch_once(&singletonToken, ^{
-        sharedFormatter = [[NSDateFormatter alloc] init];
-        [sharedFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss z"];
-    });
-
-    return sharedFormatter;
 }
 
 @end
