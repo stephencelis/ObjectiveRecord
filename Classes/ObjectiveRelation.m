@@ -83,7 +83,7 @@
 - (id)where:(id)condition, ... {
     va_list arguments;
     va_start(arguments, condition);
-    id relation = [self where:condition arguments:arguments];
+    ObjectiveRelation *relation = [self where:condition arguments:arguments];
     va_end(arguments);
 
     return relation;
@@ -149,7 +149,7 @@
 - (id)find:(id)condition, ... {
     va_list arguments;
     va_start(arguments, condition);
-    id relation = [self where:condition arguments:arguments];
+    ObjectiveRelation *relation = [self where:condition arguments:arguments];
     va_end(arguments);
 
     return [relation firstObject];
