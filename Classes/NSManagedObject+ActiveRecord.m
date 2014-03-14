@@ -187,7 +187,7 @@
     }
 
     NSDictionary *attributes = [[self entity] attributesByName];
-    NSAttributeType attributeType = [[attributes objectForKey:key] attributeType];
+    NSAttributeType attributeType = [attributes[key] attributeType];
 
     if ((attributeType == NSStringAttributeType) && ([value isKindOfClass:[NSNumber class]]))
         value = [value stringValue];
