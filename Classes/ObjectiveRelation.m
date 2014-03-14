@@ -33,16 +33,16 @@
 @property (nonatomic) NSUInteger limit;
 @property (nonatomic) NSUInteger offset;
 
-@property (nonatomic, strong) Class entity;
+@property (nonatomic, strong) Class managedObjectClass;
 @property (nonatomic, strong) NSManagedObjectContext *managedObjectContext;
 
 @end
 
 @implementation ObjectiveRelation
 
-+ (instancetype)relationWithEntity:(Class)entity {
++ (instancetype)relationWithManagedObjectClass:(Class)class {
     ObjectiveRelation *relation = [self new];
-    relation.entity = entity;
+    relation.managedObjectClass = class;
     return relation;
 }
 
@@ -85,7 +85,7 @@
 
 - (id)reverseOrder {
     if ([self.order count] == 0) {
-        return [self order:@{[self.entity primaryKey]: @"DESC"}];
+        return [self order:@{[self.managedObjectClass primaryKey]: @"DESC"}];
     }
 
     ObjectiveRelation *relation = [self copy];
@@ -143,27 +143,27 @@
 }
 
 - (id)create {
-    return [NSEntityDescription insertNewObjectForEntityForName:[self.entity entityName]
+    return [NSEntityDescription insertNewObjectForEntityForName:[self.managedObjectClass entityName]
                                          inManagedObjectContext:self.managedObjectContext];
 }
 
 - (id)create:(NSDictionary *)attributes {
     if (attributes == nil || (id)attributes == [NSNull null]) return nil;
 
-    NSManagedObject *newEntity = [self create];
-    [newEntity update:attributes];
-    return newEntity;
+    NSManagedObject *record = [self create];
+    [record update:attributes];
+    return record;
 }
 
 - (void)updateAll:(NSDictionary *)attributes {
-    for (NSManagedObject *entity in self) {
-        [entity update:attributes];
+    for (NSManagedObject *record in self) {
+        [record update:attributes];
     }
 }
 
 - (void)deleteAll {
-    for (NSManagedObject *entity in self) {
-        [entity delete];
+    for (NSManagedObject *record in self) {
+        [record delete];
     }
 }
 
@@ -184,7 +184,7 @@
 
 - (id)copyWithZone:(NSZone *)zone
 {
-    ObjectiveRelation *copy = [[self class] relationWithEntity:self.entity];
+    ObjectiveRelation *copy = [[self class] relationWithManagedObjectClass:self.managedObjectClass];
     if (copy) {
         copy.where = [self.where copyWithZone:zone];
         copy.order = [self.order copyWithZone:zone];
@@ -211,8 +211,8 @@
 }
 
 - (NSFetchRequest *)prepareFetchRequest {
-    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:[self.entity entityName]];
-    [fetchRequest setEntity:[NSEntityDescription entityForName:[self.entity entityName] inManagedObjectContext:self.managedObjectContext]];
+    NSFetchRequest *fetchRequest = [NSFetchRequest new];
+    [fetchRequest setEntity:[NSEntityDescription entityForName:[self.managedObjectClass entityName] inManagedObjectContext:self.managedObjectContext]];
     [fetchRequest setFetchLimit:self.limit];
     [fetchRequest setFetchOffset:self.offset];
     [fetchRequest setPredicate:[NSCompoundPredicate andPredicateWithSubpredicates:self.where]];
@@ -222,7 +222,7 @@
 
 - (NSPredicate *)predicateFromDictionary:(NSDictionary *)dict {
     NSArray *subpredicates = [dict map:^(id key, id value) {
-        return [NSPredicate predicateWithFormat:@"%K == %@", [self.entity keyForRemoteKey:key], value];
+        return [NSPredicate predicateWithFormat:@"%K = %@", [self.managedObjectClass keyForRemoteKey:key], value];
     }];
 
     return [NSCompoundPredicate andPredicateWithSubpredicates:subpredicates];
