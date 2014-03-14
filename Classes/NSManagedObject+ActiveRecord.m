@@ -148,8 +148,7 @@
 #pragma mark - Private
 
 - (BOOL)saveTheContext {
-    if (self.managedObjectContext == nil ||
-        ![self.managedObjectContext hasChanges]) return YES;
+    if (![self.managedObjectContext hasChanges]) return YES;
 
     NSError *error = nil;
     BOOL save = [self.managedObjectContext save:&error];
