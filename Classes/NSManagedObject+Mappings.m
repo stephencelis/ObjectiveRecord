@@ -22,8 +22,8 @@
 
 #import "NSManagedObject+Mappings.h"
 #import "NSManagedObject+ActiveRecord.h"
-#import "ObjectiveSugar.h"
 
+#import "ObjectiveSugar.h"
 
 @implementation NSManagedObject (Mappings)
 
@@ -67,7 +67,6 @@
     });
     return singleton;
 }
-
 
 #pragma mark - Abstract
 
